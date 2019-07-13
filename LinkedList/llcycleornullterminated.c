@@ -1,15 +1,19 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<assert.h>
-#define TYPE int
-#include "linkedlisthelper.c"
-#include "hashtablehelper.c"
 #include<time.h>
+// #include "linkedlisthelper.c"
+#include "hashtablehelper.c"
+#include "arrayhelper.c"
+#define TYPE int
 
-/* Floyd Cycle Detection */
+
+/* Floyd Cycle Detection.
+This also returns the location and value of the node where the loop begins. */
 void floydCycleDetection(struct LinkedList *mergedList){
     assert(mergedList);
     struct Node *fptr, *sptr;
+    int flag = 0;
     if (mergedList->head->next && mergedList->head->next->next)
     {
         sptr = mergedList->head->next;
@@ -19,12 +23,23 @@ void floydCycleDetection(struct LinkedList *mergedList){
         sptr = sptr->next;
         fptr = fptr->next->next;
         if(sptr==fptr){
-            printf("Meeting at value: %d.\n", sptr->val);
+            // printf("Meeting at value: %d.\n", sptr->val);
             printf("Cycle found.\n");
-            return;
+            flag = 1;
+            break;
         }
     }
-    printf("NULL-terminated list.\n");
+
+    if (flag==0)
+        printf("NULL-terminated list.\n");
+    else{
+        sptr = mergedList->head;
+        while(sptr!=fptr){
+            sptr = sptr->next;
+            fptr = fptr->next;
+        }
+        printf("Loop begins at location: %p, Value at node: %d\n", sptr, sptr->val);
+    }
 }
 
 /* Helper function for method 2 - checks if the address is already stored in the hashTable. */
@@ -92,8 +107,41 @@ void cycleDetectionMethod3(struct LinkedList *llist){
     printf("NULL-terminated list.\n");
 }
 
+/*
+    The below works only if we know the length of the linked list.
+    If the length of linked list is unknown, it will get stuck in an infinte loop.
+*/
 void cycleDetectionBySorting(struct LinkedList *llist){
-    /* Yet to be implemented. */
+    assert(llist);
+    int i;
+    struct Node *arr[llist->count], *curr;
+    
+    i=0;
+    curr = llist->head;
+
+    while(curr->next && i<=llist->count){
+        arr[i] = curr->next;
+        curr = curr->next;
+        i++;
+    }
+
+    mergeSort(arr, 0, llist->count);
+
+    /* 
+    printf("Memory locations after sorting");
+    for(int j=0; j<=1; j++){
+        printf("\n%p\n", arr[j]);
+    }
+    */
+
+    for(int j=0; j<llist->count; j++){
+        if(arr[j]==arr[j+1]){
+            printf("Cycle detected. \n");
+            printf("Address of node where cycle begins: %p\n", arr[j]);
+            return;
+        }
+    }
+    printf("NULL-terminated list.\n");
 }
 
 void main(){
@@ -113,7 +161,7 @@ void main(){
     addLinkedList(&llist, 54, 'b');
 
     initLinkedList(&clist);
-    for(int i=0; i<200; i++){
+    for(int i=0; i<100; i++){
         addLinkedList(&clist, 11, 'c');
         addLinkedList(&clist, 6, 'c');
         addLinkedList(&clist, 19, 'c');
@@ -123,8 +171,8 @@ void main(){
     initLinkedList(&mlist); 
     mergeLinkedList(&llist, &clist, &mlist);
     
-    printf("size of linked list: %d\n", llist.count);
-    printf("size of linked list: %d\n", clist.count);
+    printf("size of null-terminated linked list: %d\n", llist.count);
+    printf("size of circular linked list: %d\n", clist.count);
     printf("size of linked list: %d\n", mlist.count);
     // displayLinkedList(&mlist);
 
@@ -161,5 +209,12 @@ void main(){
     cycleDetectionMethod3(&clist);
 
     printf("\n*** Method 4 - by sorting ***");
-    printf("\nTo be implemented.\n");
+    printf("\n*** Merged List ***\n");
+    start = clock();
+    cycleDetectionBySorting(&mlist);
+    printf("Time taken by sorting method to detect loop: %.3f clocks.\n", (double)(clock()-start));
+    printf("\n*** Null terminated list ***\n");
+    cycleDetectionBySorting(&llist);
+    printf("\n*** Circular list ***\n");
+    cycleDetectionBySorting(&clist);
 }

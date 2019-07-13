@@ -1,4 +1,5 @@
 #define TYPE int
+#include "linkedlisthelper.c"
 
 struct HashVal{
     TYPE val;
