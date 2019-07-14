@@ -1,7 +1,7 @@
-#define TYPE int
+#define TYPE float
 
 struct Node{
-    int val;
+    TYPE val;
     struct Node *next;
 };
 
@@ -10,6 +10,13 @@ struct LinkedList{
     struct Node *tail;
     int count;
 };
+
+void createNode(struct Node *new_node, TYPE value){
+    // new_node = (struct Node *)malloc(sizeof(struct Node));
+    assert(new_node);
+    new_node->val=value;
+    new_node->next=NULL;
+}
 
 void initLinkedList(struct LinkedList *llist){
     assert(llist);
@@ -90,7 +97,7 @@ void displayLinkedList(struct LinkedList *llist){
     curr = llist->head->next;
     
     while(count<llist->count+1 && curr){
-        printf("%d\n", curr->val);
+        printf("%.2f\n", curr->val);
         curr = curr->next;
         count += 1;
     }

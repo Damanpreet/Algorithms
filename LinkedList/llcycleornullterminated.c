@@ -8,6 +8,37 @@
 #define TYPE int
 
 
+/* Using floyd's method to count the length of the loop in the linked list. */
+void CycleLengthCount(struct LinkedList *llist){
+    assert(llist);
+    struct Node *sptr, *fptr;
+    int flag, count;
+    
+    sptr=fptr=llist->head;
+    flag = 0;
+
+    while(sptr && fptr && fptr->next){
+        sptr = sptr->next;
+        fptr = fptr->next->next;
+        if(sptr == fptr){
+            printf("loop detected.\n");
+            flag = 1;
+            break;
+        }
+    }
+
+    if(flag == 1){
+        fptr = fptr->next;
+        count = 1;
+        while(fptr != sptr){
+            fptr = fptr->next;
+            count++;
+        }
+        printf("Length of loop: %d.\n", count);
+    }
+
+}
+
 /* Floyd Cycle Detection.
 This also returns the location and value of the node where the loop begins. */
 void floydCycleDetection(struct LinkedList *mergedList){
@@ -161,7 +192,7 @@ void main(){
     addLinkedList(&llist, 54, 'b');
 
     initLinkedList(&clist);
-    for(int i=0; i<100; i++){
+    for(int i=0; i<99; i++){
         addLinkedList(&clist, 11, 'c');
         addLinkedList(&clist, 6, 'c');
         addLinkedList(&clist, 19, 'c');
@@ -187,6 +218,9 @@ void main(){
     floydCycleDetection(&llist);
     printf("\n*** Circular list ***\n");
     floydCycleDetection(&clist);
+
+    /* Find the length of the loop */
+    CycleLengthCount(&mlist);
 
     printf("\n*** Method 2 - Using Hash Tables ***");
     printf("\n*** Merged List ***\n");
